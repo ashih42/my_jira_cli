@@ -1,6 +1,10 @@
 use anyhow::{Result, anyhow};
 use itertools::Itertools;
-use std::{any::Any, rc::Rc};
+use std::{
+    any::Any,
+    io::{self, Write},
+    rc::Rc,
+};
 
 use crate::{db::JiraDatabase, io_utils::get_user_input, models::Action};
 
@@ -73,7 +77,9 @@ impl Page for HomePage {
             'c' | 'C' => Ok(Action::CreateEpic),
             'g' | 'G' => {
                 println!("----------------------------");
-                println!("Enter epic id:");
+                print!("Enter epic id: ");
+                io::stdout().flush()?;
+
                 if let Ok(epic_id) = get_user_input().trim().parse::<u32>()
                     && epics.contains_key(&epic_id)
                 {
@@ -183,7 +189,9 @@ impl Page for EpicDetail {
             }),
             'g' | 'G' => {
                 println!("----------------------------");
-                println!("Enter story id:");
+                print!("Enter story id: ");
+                io::stdout().flush()?;
+
                 if let Ok(story_id) = get_user_input().trim().parse::<u32>()
                     && stories.contains_key(&story_id)
                 {

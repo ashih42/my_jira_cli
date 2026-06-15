@@ -6,6 +6,7 @@ mod models;
 mod navigator;
 mod ui;
 
+use anyhow::Error;
 use db::*;
 use io_utils::*;
 use navigator::*;
@@ -25,9 +26,7 @@ fn main() {
             Some(page) => {
                 // 2. Render the page.
                 if let Err(err) = page.draw_page() {
-                    println!("Error drawing page: {}\nPress any key to continue...", err);
-                    wait_for_key_press();
-                    break;
+                    break show_error(err);
                 }
 
                 // 3. Get user input.
@@ -36,24 +35,25 @@ fn main() {
                 // 4. Pass input to page's input handler.
                 match page.handle_input_char(ch) {
                     Err(err) => {
-                        println!(
-                            "Error handling input: {}\nPress any key to continue...",
-                            err
-                        );
-                        wait_for_key_press();
+                        show_error(err);
                     }
                     Ok(action) => {
                         // 5. Let the navigator process the action.
                         if let Err(err) = navigator.handle_action(action) {
-                            println!(
-                                "Error handling action: {}\nPress any key to continue...",
-                                err
-                            );
-                            wait_for_key_press();
+                            show_error(err);
                         }
                     }
                 }
             }
         }
     }
+}
+
+/// Note: If any error happened, it's probably coming from database file read/write operations.
+fn show_error(err: Error) {
+    println!(
+        "Error handling action: {}\nPress any key to continue...",
+        err
+    );
+    wait_for_key_press();
 }

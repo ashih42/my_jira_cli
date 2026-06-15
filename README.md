@@ -2,7 +2,7 @@
 
 This is a simple [Jira](https://www.atlassian.com/software/jira)-like project management CLI app built in Rust.
 
-## What Can This App Do
+## What This App Does
 
 This app models 2 entities:
 

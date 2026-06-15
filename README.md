@@ -15,6 +15,6 @@ In this app, you can perform CRUD operations on Epic and Story entities, and the
 
 ## Developer Notes
 
-### Entity Relation Diagram
+### Entity Relationship Diagram
 
-![Entity Relation Diagram](./doc/entity_relation_diagram.png)
+![Entity Relationship Diagram](./doc/entity_relationship_diagram.png)

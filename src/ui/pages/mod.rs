@@ -72,7 +72,8 @@ impl Page for HomePage {
             'q' | 'Q' => Ok(Action::Exit),
             'c' | 'C' => Ok(Action::CreateEpic),
             'g' | 'G' => {
-                println!("\nEnter epic id:");
+                println!("----------------------------");
+                println!("Enter epic id:");
                 if let Ok(epic_id) = get_user_input().trim().parse::<u32>()
                     && epics.contains_key(&epic_id)
                 {
@@ -181,7 +182,8 @@ impl Page for EpicDetail {
                 epic_id: self.epic_id,
             }),
             'g' | 'G' => {
-                println!("\nEnter story id:");
+                println!("----------------------------");
+                println!("Enter story id:");
                 if let Ok(story_id) = get_user_input().trim().parse::<u32>()
                     && stories.contains_key(&story_id)
                 {

@@ -13,6 +13,7 @@ pub enum Action {
     UpdateStoryStatus { story_id: u32 },
     DeleteStory { epic_id: u32, story_id: u32 },
     Exit,
+    NoOperation,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]

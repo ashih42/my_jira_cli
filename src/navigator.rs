@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Ok, Result};
+use anyhow::{Context, Ok, Result, anyhow};
 use std::rc::Rc;
 
 use crate::{
@@ -94,6 +94,7 @@ impl Navigator {
             Action::Exit => {
                 self.pages.clear();
             }
+            Action::NoOperation => (),
         }
 
         Ok(())

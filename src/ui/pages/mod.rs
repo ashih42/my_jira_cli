@@ -15,7 +15,7 @@ pub trait Page {
     #[allow(dead_code)]
     fn handle_input(&self, input: &str) -> Result<Option<Action>>;
 
-    fn handle_input_char(&self, ch: char) -> Result<Option<Action>>;
+    fn handle_input_char(&self, ch: char) -> Result<Action>;
 
     // This allows downcasting to check which concrete page this is, used in Navigator unit tests.
     #[allow(dead_code)]
@@ -65,23 +65,23 @@ impl Page for HomePage {
         }
     }
 
-    fn handle_input_char(&self, ch: char) -> Result<Option<Action>> {
+    fn handle_input_char(&self, ch: char) -> Result<Action> {
         let epics = self.db.read_db()?.epics;
 
         match ch {
-            'q' | 'Q' => Ok(Some(Action::Exit)),
-            'c' | 'C' => Ok(Some(Action::CreateEpic)),
+            'q' | 'Q' => Ok(Action::Exit),
+            'c' | 'C' => Ok(Action::CreateEpic),
             'g' | 'G' => {
                 println!("\nEnter epic id:");
                 if let Ok(epic_id) = get_user_input().trim().parse::<u32>()
                     && epics.contains_key(&epic_id)
                 {
-                    Ok(Some(Action::NavigateToEpicDetail { epic_id }))
+                    Ok(Action::NavigateToEpicDetail { epic_id })
                 } else {
-                    Ok(None)
+                    Ok(Action::NoOperation)
                 }
             }
-            _ => Ok(None),
+            _ => Ok(Action::NoOperation),
         }
     }
 
@@ -165,35 +165,35 @@ impl Page for EpicDetail {
         }
     }
 
-    fn handle_input_char(&self, ch: char) -> Result<Option<Action>> {
+    fn handle_input_char(&self, ch: char) -> Result<Action> {
         let db_state = self.db.read_db()?;
         let stories = db_state.stories;
 
         match ch {
-            'p' | 'P' => Ok(Some(Action::NavigateToPreviousPage)),
-            'u' | 'U' => Ok(Some(Action::UpdateEpicStatus {
+            'p' | 'P' => Ok(Action::NavigateToPreviousPage),
+            'u' | 'U' => Ok(Action::UpdateEpicStatus {
                 epic_id: self.epic_id,
-            })),
-            'd' | 'D' => Ok(Some(Action::DeleteEpic {
+            }),
+            'd' | 'D' => Ok(Action::DeleteEpic {
                 epic_id: self.epic_id,
-            })),
-            'c' | 'C' => Ok(Some(Action::CreateStory {
+            }),
+            'c' | 'C' => Ok(Action::CreateStory {
                 epic_id: self.epic_id,
-            })),
+            }),
             'g' | 'G' => {
                 println!("\nEnter story id:");
                 if let Ok(story_id) = get_user_input().trim().parse::<u32>()
                     && stories.contains_key(&story_id)
                 {
-                    Ok(Some(Action::NavigateToStoryDetail {
+                    Ok(Action::NavigateToStoryDetail {
                         epic_id: self.epic_id,
                         story_id,
-                    }))
+                    })
                 } else {
-                    Ok(None)
+                    Ok(Action::NoOperation)
                 }
             }
-            _ => Ok(None),
+            _ => Ok(Action::NoOperation),
         }
     }
 
@@ -245,17 +245,17 @@ impl Page for StoryDetail {
         }
     }
 
-    fn handle_input_char(&self, ch: char) -> Result<Option<Action>> {
+    fn handle_input_char(&self, ch: char) -> Result<Action> {
         match ch {
-            'p' | 'P' => Ok(Some(Action::NavigateToPreviousPage)),
-            'u' | 'U' => Ok(Some(Action::UpdateStoryStatus {
+            'p' | 'P' => Ok(Action::NavigateToPreviousPage),
+            'u' | 'U' => Ok(Action::UpdateStoryStatus {
                 story_id: self.story_id,
-            })),
-            'd' | 'D' => Ok(Some(Action::DeleteStory {
+            }),
+            'd' | 'D' => Ok(Action::DeleteStory {
                 epic_id: self.epic_id,
                 story_id: self.story_id,
-            })),
-            _ => Ok(None),
+            }),
+            _ => Ok(Action::NoOperation),
         }
     }
 

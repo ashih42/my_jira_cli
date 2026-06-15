@@ -43,15 +43,13 @@ fn main() {
                         wait_for_key_press();
                     }
                     Ok(action) => {
-                        if let Some(action) = action {
-                            // 5. if the page's input handler returns an action, let the navigator process the action.
-                            if let Err(err) = navigator.handle_action(action) {
-                                println!(
-                                    "Error handling action: {}\nPress any key to continue...",
-                                    err
-                                );
-                                wait_for_key_press();
-                            }
+                        // 5. Let the navigator process the action.
+                        if let Err(err) = navigator.handle_action(action) {
+                            println!(
+                                "Error handling action: {}\nPress any key to continue...",
+                                err
+                            );
+                            wait_for_key_press();
                         }
                     }
                 }

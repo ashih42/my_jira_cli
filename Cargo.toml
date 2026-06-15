@@ -10,6 +10,7 @@ serde_json = "1.0"
 ellipse = "0.2.0"
 itertools = "0.14.0"
 clearscreen = "4.0.6"
+console = "0.16.3"
 
 [dev-dependencies]
 tempfile = "3.3.0"

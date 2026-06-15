@@ -31,10 +31,10 @@ fn main() {
                 }
 
                 // 3. Get user input.
-                let input = get_user_input();
+                let ch = get_user_input_char();
 
                 // 4. Pass input to page's input handler.
-                match page.handle_input(input.trim()) {
+                match page.handle_input_char(ch) {
                     Err(err) => {
                         println!(
                             "Error handling input: {}\nPress any key to continue...",

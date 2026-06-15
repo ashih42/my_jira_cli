@@ -1,5 +1,5 @@
 use crate::{
-    io_utils::get_user_input,
+    io_utils::{get_user_input, get_user_input_char},
     models::{Epic, Status, Story},
 };
 
@@ -47,7 +47,9 @@ fn create_story_prompt() -> Story {
 
 fn delete_epic_prompt() -> bool {
     println!("----------------------------");
-    println!("Are you sure you want to delete this epic? All stories in this epic will also be deleted [Y/n]: ");
+    println!(
+        "Are you sure you want to delete this epic? All stories in this epic will also be deleted [Y/n]: "
+    );
 
     get_user_input().trim() == "Y"
 }
@@ -63,11 +65,11 @@ fn update_status_prompt() -> Option<Status> {
     println!("----------------------------");
     println!("New Status (1 - OPEN, 2 - IN-PROGRESS, 3 - RESOLVED, 4 - CLOSED): ");
 
-    match get_user_input().trim() {
-        "1" => Some(Status::Open),
-        "2" => Some(Status::InProgress),
-        "3" => Some(Status::Resolved),
-        "4" => Some(Status::Closed),
+    match get_user_input_char() {
+        '1' => Some(Status::Open),
+        '2' => Some(Status::InProgress),
+        '3' => Some(Status::Resolved),
+        '4' => Some(Status::Closed),
         _ => None,
     }
 }

@@ -18,7 +18,3 @@ In this app, you can perform CRUD operations on Epic and Story entities, and the
 ### Entity Relation Diagram
 
 ![Entity Relation Diagram](./doc/entity_relation_diagram.png)
-
-### Things to Improve
-
-- For menu navigation, make the app read 1 char and immediately process it, instead of waiting for user to enter a string and then still need to press ENTER key.

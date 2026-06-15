@@ -1,18 +1,21 @@
-use anyhow::Result;
-use anyhow::anyhow;
+use anyhow::{Result, anyhow};
 use itertools::Itertools;
-use std::any::Any;
-use std::rc::Rc;
+use std::{any::Any, rc::Rc};
 
-use crate::db::JiraDatabase;
-use crate::models::Action;
+use crate::{db::JiraDatabase, io_utils::get_user_input, models::Action};
 
 mod page_helpers;
 use page_helpers::*;
 
 pub trait Page {
     fn draw_page(&self) -> Result<()>;
+
+    // This function has been replaced by `handle_input_char`, but it is kept since there are
+    // many unit tests around it.
+    #[allow(dead_code)]
     fn handle_input(&self, input: &str) -> Result<Option<Action>>;
+
+    fn handle_input_char(&self, ch: char) -> Result<Option<Action>>;
 
     // This allows downcasting to check which concrete page this is, used in Navigator unit tests.
     #[allow(dead_code)]
@@ -39,8 +42,7 @@ impl Page for HomePage {
 
         println!();
         println!();
-
-        println!("[q] quit | [c] create epic | [:id:] navigate to epic");
+        println!("[Q] Quit | [C] Create epic | [G] Go to epic");
 
         Ok(())
     }
@@ -60,6 +62,26 @@ impl Page for HomePage {
                     Ok(None)
                 }
             }
+        }
+    }
+
+    fn handle_input_char(&self, ch: char) -> Result<Option<Action>> {
+        let epics = self.db.read_db()?.epics;
+
+        match ch {
+            'q' | 'Q' => Ok(Some(Action::Exit)),
+            'c' | 'C' => Ok(Some(Action::CreateEpic)),
+            'g' | 'G' => {
+                println!("\nEnter epic id:");
+                if let Ok(epic_id) = get_user_input().trim().parse::<u32>()
+                    && epics.contains_key(&epic_id)
+                {
+                    Ok(Some(Action::NavigateToEpicDetail { epic_id }))
+                } else {
+                    Ok(None)
+                }
+            }
+            _ => Ok(None),
         }
     }
 
@@ -91,7 +113,6 @@ impl Page for EpicDetail {
         println!("{} | {} | {} | {}", id_col, name_col, desc_col, status_col);
 
         println!();
-
         println!("---------------------------- STORIES ----------------------------");
         println!("     id     |               name               |      status      ");
 
@@ -107,9 +128,8 @@ impl Page for EpicDetail {
 
         println!();
         println!();
-
         println!(
-            "[p] previous | [u] update epic | [d] delete epic | [c] create story | [:id:] navigate to story"
+            "[P] Previous | [U] Update epic | [D] Delete epic | [C] Create story | [G] Go to story"
         );
 
         Ok(())
@@ -145,6 +165,38 @@ impl Page for EpicDetail {
         }
     }
 
+    fn handle_input_char(&self, ch: char) -> Result<Option<Action>> {
+        let db_state = self.db.read_db()?;
+        let stories = db_state.stories;
+
+        match ch {
+            'p' | 'P' => Ok(Some(Action::NavigateToPreviousPage)),
+            'u' | 'U' => Ok(Some(Action::UpdateEpicStatus {
+                epic_id: self.epic_id,
+            })),
+            'd' | 'D' => Ok(Some(Action::DeleteEpic {
+                epic_id: self.epic_id,
+            })),
+            'c' | 'C' => Ok(Some(Action::CreateStory {
+                epic_id: self.epic_id,
+            })),
+            'g' | 'G' => {
+                println!("\nEnter story id:");
+                if let Ok(story_id) = get_user_input().trim().parse::<u32>()
+                    && stories.contains_key(&story_id)
+                {
+                    Ok(Some(Action::NavigateToStoryDetail {
+                        epic_id: self.epic_id,
+                        story_id,
+                    }))
+                } else {
+                    Ok(None)
+                }
+            }
+            _ => Ok(None),
+        }
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -174,8 +226,7 @@ impl Page for StoryDetail {
 
         println!();
         println!();
-
-        println!("[p] previous | [u] update story | [d] delete story");
+        println!("[P] Previous | [U] update story | [D] Delete story");
 
         Ok(())
     }
@@ -187,6 +238,20 @@ impl Page for StoryDetail {
                 story_id: self.story_id,
             })),
             "d" => Ok(Some(Action::DeleteStory {
+                epic_id: self.epic_id,
+                story_id: self.story_id,
+            })),
+            _ => Ok(None),
+        }
+    }
+
+    fn handle_input_char(&self, ch: char) -> Result<Option<Action>> {
+        match ch {
+            'p' | 'P' => Ok(Some(Action::NavigateToPreviousPage)),
+            'u' | 'U' => Ok(Some(Action::UpdateStoryStatus {
+                story_id: self.story_id,
+            })),
+            'd' | 'D' => Ok(Some(Action::DeleteStory {
                 epic_id: self.epic_id,
                 story_id: self.story_id,
             })),
